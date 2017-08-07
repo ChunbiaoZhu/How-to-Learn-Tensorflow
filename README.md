@@ -13,35 +13,21 @@ DAY 1
     一个优化策略会更新模型的变量。
 
 
+DAY 2
+=====
+1、对于输入层（图像层），我们一般会把图像大小resize成边长为2的次方的正方形。比如CIFAR-10是32x32x3，STL-10是64x64x3，而ImageNet是224x224x3或者512x512x3。
+
+2、实际工程中，我们得预估一下内存，然后根据内存的情况去设定合理的值。例如输入是224x224x3得图片，过滤器大小为3x3，共64个，zero-padding为1，这样每张图片需要72MB的内存（这里的72MB囊括了图片以及对应的参数、梯度和激活值在内的，所需要的内存空间），但是在GPU上运行的话，内存可能不够（相比于CPU，GPU的内存要小得多），所以需要调整下参数，比如过滤器大小改为7x7，stride改为2（ZF net），或者过滤器大小改为11x11，stride改为4（AlexNet）。
+
+3、构建一个实际可用的深度卷积神经网络最大的瓶颈是GPU的内(显)存。现在很多GPU只有3/4/6GB的内存，单卡最大的也就12G（NVIDIA），所以我们应该在设计卷积神经网的时候，多加考虑内存主要消耗在哪里：
+
+大量的激活值和中间梯度值；
+参数，反向传播时的梯度以及使用momentum，Adagrad，or RMSProp时的缓存都会占用储存，所以估计参数占用的内存时，一般至少要乘以3倍；
+数据的batch以及其他的类似信息或者来源信息等也会消耗一部分内存。
+
+作者：Deeplayer
+链接：http://www.jianshu.com/p/9c4396653324
+來源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 
-
-
-cuDNN :/usr/bin/ld: 找不到 -lcudnn 
-ImportError: cuDNN not available: Can not compile with cuDNN. 
-should follow:
- ======================================================================
-NVIDIA provides a library for common neural network operations that especially speeds up Convolutional Neural Networks (CNNs). Again, it can be obtained from NVIDIA (after registering as a developer): https://developer.nvidia.com/cudnn
-
-Note that it requires a reasonably modern GPU with Compute Capability 3.0 or higher; see NVIDIA’s list of CUDA GPUs.
-
-To install it, copy the *.h files to /usr/local/cuda/include and the lib* files to /usr/local/cuda/lib64.
-
-To check whether it is found by Theano, run the following command:
-
-python -c "from theano.sandbox.cuda.dnn import dnn_available as d; print(d() or d.msg)"
-
-ImportError: No module named cv2
- ======================================================================
- pip install opencv-python
-
- 
- Ubuntu14.04和16.04官方默认更新源sources.list和第三方源推荐（干货！）
-  ======================================================================
-  http://www.cnblogs.com/zlslch/p/6860229.html
-  
-  Caffe 
-    ======================================================================
-  http://blog.csdn.net/zouyu1746430162/article/details/54095807
-  
-  http://blog.csdn.net/xierhacker/article/details/53035989
